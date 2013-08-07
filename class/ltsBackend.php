@@ -784,7 +784,7 @@ class ltsBackend extends ltsBase
                     break;
                     
                 case 'CLEARALL' : // CLEAR CACHE INCLUDING DISK
-                    $flag |= 2;
+                    $flag |= 3;
                     break;
                     
                 case 'RELOAD' : // RELOAD CALLBACKS
