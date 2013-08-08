@@ -9,7 +9,7 @@ class ltsBackend extends ltsBase
     static private $do_callbacks = false;
     static private $do_check_flags = false;
     static private $disk_cache_path = false;
-    static private $loader_path = false;
+    static public $loader_path = false;
     
     protected $shmem_id = false;
     private $process_slot = false;
@@ -263,7 +263,7 @@ class ltsBackend extends ltsBase
                             if ($func_body = file_get_contents ($path))
                             {
                                 $this->callback_functions[$path]['call_count'] = 0;
-                                $this->callback_functions[$path]['function'] = create_function ('$po,$script_path', $func_body);
+                                $this->callback_functions[$path]['function'] = create_function ('$po, $script_path', $func_body);
                                 $this->callback_functions[$path]['execute'] = true;		// Can we execute the function?
                             } // Has function body content
                         } // Does file exists?
