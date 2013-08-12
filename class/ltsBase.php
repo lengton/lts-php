@@ -25,7 +25,7 @@ class ltsBase
     public $sid = false;
     public $host_ip = false;
     public static $backend_sid = '860f5605a4833c2a9447baddb58815b9';  // Assigned SID for the Backend process - Gigatt.AttGig!
-    private $log_fd = false;
+    static private $log_fd = false;
     static private $log_path = false;
     static private $log_size = false;
     
@@ -57,8 +57,8 @@ class ltsBase
             else self::$log_size = 500;
                 
             // Open log file
-            if (!$this->log_fd)
-                $this->log_fd = fopen (self::$log_path, 'a');
+            if (!self::$log_fd)
+                self::$log_fd = fopen (self::$log_path, 'a');
         } // LOG PATH EXISTS?
         
         // We just need one copy of the Database connection
@@ -761,16 +761,16 @@ class ltsBase
         {
             if (filesize (self::$log_path) > (self::$log_size * 1024))
             {
-                fclose ($this->log_fd);
+                fclose (self::$log_fd);
                 rename (self::$log_path, self::$log_path.'-'.date ('mdY_Gi'));
-                $this->log_fd = fopen (self::$log_path, 'a');
+                self::$log_fd = fopen (self::$log_path, 'a');
             } // Rotate log?
         } // Check file size
         
-        if ($this->log_fd)
+        if (self::$log_fd)
         {
-            fwrite ($this->log_fd, trim ($log)."\n");
-            fflush ($this->log_fd);
+            fwrite (self::$log_fd, trim ($log)."\n");
+            fflush (self::$log_fd);
         } // Write to log
     } // log
     
