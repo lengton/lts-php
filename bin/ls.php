@@ -42,6 +42,7 @@ if ($url = new ltsURL ($page_vars))
             if (($ep = strrpos ($path, '.')) !== false)
                 $ext = strtolower (substr ($path, ($ep + 1)));
         } else $path = false;
+
         
         // Check if we're serving CSS files?
         if ($ext == 'css')
@@ -62,8 +63,6 @@ if ($url = new ltsURL ($page_vars))
                 // Is source is newer than cached data
                 if ($url->getModtime() > $mtime)
                 {
-                    // Remove from Cache if stale
-                    syslog (LOG_NOTICE, 'loader: Static cache stale ['.$url->getURL().']');
                     unlink ($cache_path);
                     $recreate = true;
                 } else $path = $cache_path;    
@@ -72,6 +71,7 @@ if ($url = new ltsURL ($page_vars))
             // Recreate this file?
             if ($recreate && ($p = new ltsPage ($url)))
             {
+                $p->log ('loader: CSS file regenerated ['.$url->getURL().']');
                 if (($out = $p->parseCSSfile ($path)) && file_put_contents ($cache_path, $out))
                     $path = $cache_path;
             } // Can parse the file?

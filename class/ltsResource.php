@@ -144,6 +144,17 @@ class ltsResource extends ltsPage
     } // getData
     
     
+    public function unsetData ($k)
+    {
+        if (array_key_exists ($k, $this->data))
+        {
+            unset ($this->data[$k]);
+            return (true);
+        } // Unset value
+        return (false);
+    } // unsetData
+    
+    
     public function error ($k, $m = false)
     {
         if ($m !== false) 
@@ -162,6 +173,57 @@ class ltsResource extends ltsPage
     {
         $this->errors = array();
     } // clearErrors
+    
+    
+    public function staggingSave ($isid = false, $sid = false)
+    {
+        // Usually a stagging save is a one time deal
+        // we only save/update objects WITH our data contents (data part only)
+        if (($isid = intVal ($isid)) && $this->data && ($sid == false))
+        {
+            $data = base64_encode (serialize ($this->data));
+            $q = 'INSERT INTO stagging (isid,rid,data) VALUES ('.$isid.','.$this->rid.','.$this->dbStr ($data).')';
+            if ($this->dbExec ($q, 'stagging'))
+            {
+                $sid = intVal ($this->dbLastID());
+                $this->setData ('stagging_id', $sid);  // Assign Stagging ID
+                $this->unsetData ('id');   // Force remove this key, since we're INSERTING
+                return ($sid);
+            } // Successfully saved?
+        } // Has ImportSet ID?
+        
+        // If $sid has value lets update our data
+        if (($sid = intVal ($sid)) && ($isid == false))
+        {
+            $data = base64_encode (serialize ($this->data));
+            if ($this->dbUpdate ('stagging', 'data='.$this->dbStr ($data), 'id='.$sid))
+            {
+                $this->setData ('stagging_id', $sid);
+                // Remember we may assume that ->getData ('id') exists
+                return ($sid);
+            } // Update successful?
+        } // Has Stagging ID value?
+        
+        return (false);
+    } // staggingSave
+    
+    
+    public function staggingLoad ($sid = false)
+    {
+        // Replaces this objects data (DATA ONLY!!!) with the data on the stagging area
+        if ($sid = intVal ($sid))
+        {
+            // LOAD FROM STAGGING TABLE
+            if ($data = $this->dbGetValue ('stagging', 'data', 'id='.$sid))
+            {
+                $this->resetResource();
+                $this->data = unserialize (base64_decode ($data));
+                $this->setData ('stagging_id', $sid);  // Assign stagging ID
+                return ($sid);
+            } // Has data from stagging table?
+        } // Has ImportSet ID?
+        return (false);
+    } // staggingSave
     
     
     public function save ($urid = false)
@@ -318,7 +380,6 @@ class ltsResource extends ltsPage
                     // Skip fields without an attribute divider
                     if (strpos ($fields, ':') === false)
                         continue;
-                        
                     // Extract field name and attributes
                     $fld_tuple = explode (':', $fields);
                     if (count ($fld_tuple) < 1)
@@ -356,6 +417,7 @@ class ltsResource extends ltsPage
                     $qry .= $v.',';
                 } // FOREACH
                 $qry = trim ($qry, ',').')';;
+
                 // Commit to Database
                 if ($this->dbExec ($qry, $this->db_table))
                 {
@@ -369,7 +431,7 @@ class ltsResource extends ltsPage
     } // save
     
     
-    public function load ($urid = false)
+    public function load ($urid = false, $load_from_stagging = false)
     {
         // Remember resources are always associated with a User
         $urid = intVal ($urid);
@@ -484,7 +546,7 @@ class ltsResource extends ltsPage
                 if ($s_name == get_class ($this))
                 {
                     $s_data = substr ($data_str, ($dv + 1));
-                    $data = unserialize ($s_data);
+                    $data = unserialize (base64_decode ($s_data));
                     $this->data = $data['m'];
                     $this->errors = $data['e'];
                     return (true);
@@ -582,6 +644,13 @@ class ltsResource extends ltsPage
         } // Has Field name and DB Table?
         return (false);
     } // getFieldType 
+    
+    
+    public function dbGetNextID ()
+    {
+        // Get's next ID from our sequence
+        return (parent::dbGetNextID ($this->db_table));
+    } // dbGetNextID
                     
     
 } // ltsResource
