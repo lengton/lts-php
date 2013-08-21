@@ -422,7 +422,6 @@ class ltsBase
         // Blindly delete it
         if ($fp = $this->sessionGet ('lts_tempFile'))
             @unlink ($fp);
-            
         return ($this->dbDelete ('session', 'sid='.$this->dbStr($this->sid)));
     } // sessionClear
     
@@ -765,13 +764,17 @@ class ltsBase
                 rename (self::$log_path, self::$log_path.'-'.date ('mdY_Gi'));
                 self::$log_fd = fopen (self::$log_path, 'a');
             } // Rotate log?
+            
+            if (self::$log_fd)
+            {
+                if (fwrite (self::$log_fd, trim ($log)."\n"))
+                    fflush (self::$log_fd);
+                else {
+                    self::$log_fd = fopen (self::$log_path, 'a');
+                    fwrite (self::$log_fd, trim ($log)."\n");
+                } // Successfull write?
+            } // Write to log
         } // Check file size
-        
-        if (self::$log_fd)
-        {
-            fwrite (self::$log_fd, trim ($log)."\n");
-            fflush (self::$log_fd);
-        } // Write to log
     } // log
     
 } // ltsBase

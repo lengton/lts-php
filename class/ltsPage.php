@@ -1344,6 +1344,19 @@ class ltsPage extends ltsBase
                                      (value='.$this->dbStr ($script).')');
         return (true);
     } // unregisterTimeout
+    
+    
+    public function mangle ($str)
+    {
+        return (base64_encode (mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $this->sid, trim ($str), MCRYPT_MODE_CBC)));
+    } // mangle
+    
+    
+    public function unmangle ($str)
+    {
+        $data = base64_decode ($str);
+        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $this->sid, $data, MCRYPT_MODE_CBC)));
+    } // unmangle
         
 } // ltsPage
 

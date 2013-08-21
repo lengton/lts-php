@@ -223,7 +223,7 @@ class ltsResource extends ltsPage
             } // Has data from stagging table?
         } // Has ImportSet ID?
         return (false);
-    } // staggingSave
+    } // staggingLoad
     
     
     public function save ($urid = false)
