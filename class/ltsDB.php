@@ -91,6 +91,14 @@ class ltsDB extends ltsBase
     } // dbDelete
     
     
+    public function dbStr ($str)
+    {
+        if (strlen ($str))
+            return ('\''.mysql_escape_string($str).'\'');
+        return ('NULL');
+    } // dbStr
+    
+    
     public function dbGetValue ($table, $values, $where)
     {
         if (($r = $this->dbExec ('SELECT '.$values.' FROM '.$table.' WHERE '.$where)) && $this->dbNumRows ($r)) 
