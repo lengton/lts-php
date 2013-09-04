@@ -9,6 +9,7 @@ class ltsBackend extends ltsBase
     static private $do_callbacks = false;
     static private $do_check_flags = false;
     static private $disk_cache_path = false;
+    static public $ip_addr = '127.0.0.1';     // By default, we bind locally
     static public $loader_path = false;
     
     protected $shmem_id = false;
@@ -62,6 +63,10 @@ class ltsBackend extends ltsBase
             @include_once ($loader_path);
             if (isset ($page_vars))
             {
+                // Do we need to bind to a specific IP address?
+                if (isset ($page_vars['backend_ip']))
+                    self::$ip_addr = $page_vars['backend_ip'];
+                    
                 self::$loader_path = $loader_path;
                 if ($this->i_am_master)
                 {
@@ -181,7 +186,7 @@ class ltsBackend extends ltsBase
                     // Iterate ports to Bind
                     for ($port = self::$backend_port; $port < (self::$backend_port + 20); $port++)
                     {
-                        if (@socket_bind ($this->socket, '127.0.0.1',  $port))
+                        if (@socket_bind ($this->socket, self::$ip_addr,  $port))
                         {
                             $port_bind = $port;
                             break;

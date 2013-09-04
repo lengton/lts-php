@@ -232,7 +232,7 @@ class ltsResource extends ltsPage
         // Usually all Resource objects are associated with a User
         $status = 0;
         $urid = intVal ($urid);
-        
+
         // Determine RID, User type is a special case
         if ($this->rid == 1) 
         {
@@ -245,7 +245,7 @@ class ltsResource extends ltsPage
         
         // Do we have a table to process?
         // We ALWAYS NEED a User ID associated for every resource
-        if ($this->db_table && isset ($this->db_field) && $this->uid)
+        if ($this->db_table && isset ($this->db_field))
         {
             // Determine if we need to do an INSERT or UPDATE
             // Depending on the value of $urid. A zero means an INSERT.
@@ -350,7 +350,8 @@ class ltsResource extends ltsPage
             } else {
             
                 // INSERT A NEW RECORD ENTRY
-                $this->setData ('uid', $this->uid);  // Assign UID -- standard field name for all resources
+                if ($this->uid)
+                    $this->setData ('uid', $this->uid);  // Assign UID -- usually a standard field name for all resources
                 
                 // IMPORTANT!!!! Resources should have a 'modified' field
                 $this->setData ('modified', $this->getTimestamp());

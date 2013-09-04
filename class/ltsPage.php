@@ -1357,7 +1357,7 @@ class ltsPage extends ltsBase
         $data = base64_decode ($str);
         return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $this->sid, $data, MCRYPT_MODE_CBC)));
     } // unmangle
-        
+    
 } // ltsPage
 
 ?>

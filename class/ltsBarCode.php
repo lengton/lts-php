@@ -29,6 +29,10 @@ class ltsBarCode extends ltsPage
     private $black = 0;
     
     private $image = false;
+    private $im_height = false;
+    private $im_width = false;
+    private $has_text = 1;
+    private $border_width = 0;
 
 
     
@@ -41,14 +45,57 @@ class ltsBarCode extends ltsPage
     } // contructor
     
     
-    public function intcode ($v)
+    public function __destruct ()
+    {
+        // Destroy GD image data
+        if ($this->image)
+            imagedestroy($this->image);
+        $this->image = false;
+    } // destructor
+    
+    
+    public function setBorderWidth ($bw)
+    {
+        if ($bw = intVal ($bw))
+        {
+            if ($bw > 3) $bw = 3;
+            if ($bw < 1) $bw = 0;
+            if ($bw)
+                $this->border_width = $bw;
+        } // has Border width?
+        return ($bw);
+    } // setBorderWidth
+    
+    
+    public function setHeight ($h)
+    {
+        if ($h = intVal ($h))
+        {
+            if ($this->has_text)
+                if ($h < 35) $h = 35;
+            else if ($h < 5) $h = 5;
+            if ($h > 100) $h = 80;
+            self::$bar_height = $h;
+        }
+        return ($h);
+    } // setHeight
+    
+    
+    public function hasText ($v)
+    {
+        $this->has_text = intVal ($v);
+    } // hasText
+    
+    
+    public function &intcode ($v, $image_out = true)
     {
         $s = sprintf ("%011d", $v);
-        $this->barcode ($s);
+        return ($this->barcode ($s, $image_out));
     } // intcode
     
     
-    public function barcode ($str = false)
+    
+    public function &barcode ($str = false, $image_out = true)
     {
         if ($str && ($len = strlen ($str)))
         {
@@ -69,12 +116,12 @@ class ltsBarCode extends ltsPage
                 $len = 11;
             } // TEN DIGITS ONLY
             
-            $im_width = ((($len + 2) * 7) * self::$bar_width) + (6 * self::$bar_width) + (2 * self::$bar_margins) +
+            $this->im_width = ((($len + 2) * 7) * self::$bar_width) + (5 * self::$bar_width) + (2 * self::$bar_margins) +
                         (5 * self::$bar_width) + (self::$bar_smargins * 2);
-            $im_height = self::$bar_height + (2 * self::$bar_margins);
+            $this->im_height = self::$bar_height + (2 * self::$bar_margins);
             
             // Create Barcode Canvas
-            if (!($this->image = imagecreate ($im_width, $im_height)))
+            if (!($this->image = imagecreate ($this->im_width, $this->im_height)))
                 return (false);
                 
             // Compute Check digit -- Odd
@@ -98,6 +145,10 @@ class ltsBarCode extends ltsPage
             $this->white = imagecolorallocate ($this->image, 255, 255, 255);
             $this->black = imagecolorallocate ($this->image, 0, 0 ,0);
             
+            // Do we need to add borders?
+            if ($this->border_width)
+                $this->drawBorder();
+            
             // Initialize Vars
             $this->x = $this->y = self::$bar_margins;
             $this->x += self::$bar_smargins;
@@ -117,14 +168,17 @@ class ltsBarCode extends ltsPage
                 if (($i == 0) || ($i == 11)) 
                 {
                     if ($i == 0) $txt_x = (self::$bar_smargins - $txt_size) + 5;
-                    if ($i == 11) $txt_x = ($im_width - self::$bar_smargins) - (self::$font_height - 3);
+                    if ($i == 11) $txt_x = ($this->im_width - self::$bar_smargins) - (self::$font_height - 3);
                     $long = true;
                 }
                 $bcode = self::$ccode[intVal ($code[$i])];
                 if (!$long)
                     $txt_x = ($this->x + 1);
                 $this->drawCode ($bcode, $long);
-                imagettftext ($this->image, $txt_size, 0, $txt_x, $txt_y, $this->black, self::$font_name, $code[$i]);
+                
+                // Do we need to output text?
+                if ($this->has_text)
+                    imagettftext ($this->image, $txt_size, 0, $txt_x, $txt_y, $this->black, self::$font_name, $code[$i]);
 
                 
                 // SECOND HALF?
@@ -139,14 +193,41 @@ class ltsBarCode extends ltsPage
             // 	Trailing lines
             $this->solid = true;
             $this->drawCode ('111', true);
-                
-            // Output image 
-            header ("Content-type: image/gif");
-            imagegif ($this->image);
-            imagedestroy($this->image);
+            
+            
+            // Do we need to output the image?
+            if ($image_out)
+            {
+                // Output image 
+                header ("Content-type: image/gif");
+                imagegif ($this->image);
+                imagedestroy($this->image);
+                $this->image = false;
+                return (true);
+            } else {
+                return ($this->image);
+            } // Output the Image
         } // HAS STRING
         return (false);
     } // barcode
+    
+    
+    public function getGDImage()
+    {
+        return ($this->image);
+    } // getGDImage
+    
+    
+    public function getHeight()
+    {
+        return ($this->im_height);
+    } // getHeight
+    
+    
+    public function getWidth()
+    {
+        return ($this->im_width);
+    } // getWidth
     
     
     private function drawCode ($code, $long = false)
@@ -159,6 +240,22 @@ class ltsBarCode extends ltsPage
     } // drawCode
     
     
+    private function drawBorder ()
+    {
+        if ($bw = $this->border_width)
+        {
+            // Fill the whole image with black
+            imagefilledrectangle ($this->image, 0, 0, $this->im_width, $this->im_height, $this->black);
+            
+            // Fill the whole image with white
+            imagefilledrectangle ($this->image, $bw, $bw, ($this->im_width - $bw) -1, ($this->im_height - $bw) -1, $this->white);
+            
+            return (true);
+        } // has Border width?
+        return (false);
+    } // drawBorder
+    
+    
     private function drawLine ($w, $long = false)
     {
         if ($c = intVal ($w))
@@ -169,7 +266,11 @@ class ltsBarCode extends ltsPage
             $x1 = $this->x;
             $y1 = $this->y;
             $x2 = ($x1 + (self::$bar_width * $c)) - 1;
-            $y2 = ($y1 + ($long ? self::$bar_height : (self::$bar_height - self::$font_height)));
+            
+            // Do we need to make space for text?
+            if ($this->has_text)
+                $y2 = ($y1 + ($long ? self::$bar_height : (self::$bar_height - self::$font_height)));
+            else $y2 = ($y1 + self::$bar_height);
             
             imagefilledrectangle ($this->image, $x1, $y1, $x2, $y2, $color);
             
