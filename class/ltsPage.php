@@ -901,8 +901,10 @@ class ltsPage extends ltsBase
                 {
                     case 1 : // Upcase words
                         $w = ucwords ($w);
-                         if (($w[0] == 'M') && ($w[1] == 'c'))
-                             $w[2] = strtoupper ($w[2]);
+                        if ((strlen ($w) > 2) && ($w[0] == 'M') && ($w[1] == 'c'))
+                            $w[2] = strtoupper ($w[2]);
+                        else if ((strlen ($w) > 2) && ctype_alpha ($w[0]) && ($w[1] == "'") && ctype_alpha ($w[2]))
+                            $w[2] = strtoupper ($w[2]);
                         break;
                         
                 } // OPTIONS

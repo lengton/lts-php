@@ -159,12 +159,27 @@ class ltsResource extends ltsPage
     {
         if ($m !== false) 
             $this->errors[$k] = $m;
-        else return (@$this->errors[$k]);
+        else if (isset ($this->errors[$k]))
+            return ($this->errors[$k]);
+        return (false);
     } // error
+    
+    
+    public function unsetError ($k = false)
+    {
+        if ($k)
+        {
+            unset ($this->errors[$k]);
+            return (true);
+        } // Has Key?
+        return (false);
+    } // unsetError
     
     
     public function hasErrors()
     {
+        if (empty ($this->errors))
+            return (false);
         return (count ($this->errors));
     } // hasErrors
     
@@ -175,18 +190,18 @@ class ltsResource extends ltsPage
     } // clearErrors
     
     
-    public function staggingSave ($isid = false, $sid = false)
+    public function stagingSave ($isid = false, $sid = false)
     {
-        // Usually a stagging save is a one time deal
+        // Usually a staging save is a one time deal
         // we only save/update objects WITH our data contents (data part only)
         if (($isid = intVal ($isid)) && $this->data && ($sid == false))
         {
             $data = base64_encode (serialize ($this->data));
-            $q = 'INSERT INTO stagging (isid,rid,data) VALUES ('.$isid.','.$this->rid.','.$this->dbStr ($data).')';
-            if ($this->dbExec ($q, 'stagging'))
+            $q = 'INSERT INTO staging (isid,rid,data) VALUES ('.$isid.','.$this->rid.','.$this->dbStr ($data).')';
+            if ($this->dbExec ($q, 'staging'))
             {
                 $sid = intVal ($this->dbLastID());
-                $this->setData ('stagging_id', $sid);  // Assign Stagging ID
+                $this->setData ('staging_id', $sid);  // Assign Stagging ID
                 $this->unsetData ('id');   // Force remove this key, since we're INSERTING
                 return ($sid);
             } // Successfully saved?
@@ -196,41 +211,40 @@ class ltsResource extends ltsPage
         if (($sid = intVal ($sid)) && ($isid == false))
         {
             $data = base64_encode (serialize ($this->data));
-            if ($this->dbUpdate ('stagging', 'data='.$this->dbStr ($data), 'id='.$sid))
+            if ($this->dbUpdate ('staging', 'data='.$this->dbStr ($data), 'id='.$sid))
             {
-                $this->setData ('stagging_id', $sid);
+                $this->setData ('staging_id', $sid);
                 // Remember we may assume that ->getData ('id') exists
                 return ($sid);
             } // Update successful?
         } // Has Stagging ID value?
         
         return (false);
-    } // staggingSave
+    } // stagingSave
     
     
-    public function staggingLoad ($sid = false)
+    public function stagingLoad ($sid = false)
     {
-        // Replaces this objects data (DATA ONLY!!!) with the data on the stagging area
+        // Replaces this objects data (DATA ONLY!!!) with the data on the staging area
         if ($sid = intVal ($sid))
         {
             // LOAD FROM STAGGING TABLE
-            if ($data = $this->dbGetValue ('stagging', 'data', 'id='.$sid))
+            if ($data = $this->dbGetValue ('staging', 'data', 'id='.$sid))
             {
                 $this->resetResource();
                 $this->data = unserialize (base64_decode ($data));
-                $this->setData ('stagging_id', $sid);  // Assign stagging ID
+                $this->setData ('staging_id', $sid);  // Assign staging ID
                 return ($sid);
-            } // Has data from stagging table?
+            } // Has data from staging table?
         } // Has ImportSet ID?
         return (false);
-    } // staggingLoad
+    } // stagingLoad
     
     
     public function save ($urid = false)
     {
         // Determine what kind of data are we saving
         // Usually all Resource objects are associated with a User
-        $status = 0;
         $urid = intVal ($urid);
 
         // Determine RID, User type is a special case
@@ -325,10 +339,6 @@ class ltsResource extends ltsPage
                 // Remove extra comma
                 $qry = rtrim ($qry, ',').' WHERE id='.$urid;
                 
-                // Commit to Database
-                if ($this->dbExec ($qry))
-                    $status++;
-                    
                 // Save any extended data
                 foreach ($this->data as $key => $value)
                 {
@@ -342,10 +352,12 @@ class ltsResource extends ltsPage
                         continue;
                     
                     // Let the Base class handle saving for us
-                    if ($this->dbExtData ($this->rid, $urid, $key, $value))
-                        $status++;
+                    $this->dbExtData ($this->rid, $urid, $key, $value);
                 } // FOREACH
-                return ($status);
+                
+                // Commit to Database
+                if ($this->dbExec ($qry))
+                    return ($urid);
                 
             } else {
             
@@ -432,7 +444,7 @@ class ltsResource extends ltsPage
     } // save
     
     
-    public function load ($urid = false, $load_from_stagging = false)
+    public function load ($urid = false, $load_from_staging = false)
     {
         // Remember resources are always associated with a User
         $urid = intVal ($urid);
