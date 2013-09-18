@@ -44,7 +44,7 @@ class ltsBase
         $this->shmem_compute_header_size();
         
         @include_once ('conf/log.php');
-        if (isset ($lts_log_path))
+        if ($for_web && isset ($lts_log_path))
         {
             // Create if it doesn't exists
             if (!file_exists ($lts_log_path))
