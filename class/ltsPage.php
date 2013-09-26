@@ -1348,16 +1348,20 @@ class ltsPage extends ltsBase
     } // unregisterTimeout
     
     
-    public function mangle ($str)
+    public function mangle ($str, $key = false)
     {
-        return (base64_encode (mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $this->sid, trim ($str), MCRYPT_MODE_CBC)));
+        if ($key === false)
+            $key = $this->sid;
+        return (base64_encode (mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $key, trim ($str), MCRYPT_MODE_CBC)));
     } // mangle
     
     
-    public function unmangle ($str)
+    public function unmangle ($str, $key = false)
     {
+        if ($key === false)
+            $key = $this->sid;
         $data = base64_decode ($str);
-        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $this->sid, $data, MCRYPT_MODE_CBC)));
+        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
     } // unmangle
     
 } // ltsPage
