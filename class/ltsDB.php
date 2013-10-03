@@ -12,7 +12,7 @@ class ltsDB extends ltsBase
         
         if ($pp && is_array ($pp))
         {
-            $this->db = mysql_pconnect($pp['server'], $pp['user']);
+            $this->db = mysql_connect($pp['server'], $pp['user']);
             if (!mysql_select_db ($pp['db'], $this->db))    
             {
                 $this->log ('ltsDB: Cannot connect to '.$pp['server'].':'.$pp['db']);
