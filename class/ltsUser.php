@@ -21,7 +21,7 @@ class ltsUser extends ltsResource
         //   'n' = numerical
         //   'b' = boolean
         //   'x' = Don't read-in
-        $this->db_field = array ('id:rn', 'email:rs', 'firstname:s', 'lastname:s', 'company:s', 'verified:rb',
+        $this->db_field = array ('id:rn', 'email:rs', 'firstname:s', 'lastname:s', 'company:s', 'verified:rb', 'cid:n',
                                  'password:x', 'type:rn', 'created:rs', 'last_login:rs', 'blocked:rb', 'last_url:s');
     } // contructor
     
@@ -62,6 +62,7 @@ class ltsUser extends ltsResource
                 // Is this an EG Staff?
                 if ($db_pass == 'mail')
                     $db_pass = $this->getEGMailPassword ($email);
+                    
                 // Check password and login
                 if ($uid && (crypt ($password, $db_pass) == $db_pass))
                     return ($this->loginUID ($uid));

@@ -2,14 +2,20 @@
 
 // GLOBAL FUNCTIONS available to all scripts
 
-function _p($s, $k)
+function _p($s, $k, $echo = true)
 {
     if ($s)
     {
         if (is_array($s) && array_key_exists ($k, $s))
-            echo htmlspecialchars ($s[$k]);
+            $v = htmlspecialchars ($s[$k]);
         else if (is_a ($s, 'ltsResource'))
-            echo htmlspecialchars ($s->getData ($k, 1));
+            $v = htmlspecialchars ($s->getData ($k, 1));
+    
+        if ($v)
+        {
+            if ($echo) echo $v;
+                else return ($v);
+        } // Has echo
     } // has valid $s
 } // _p
 
@@ -68,7 +74,7 @@ function _m ($s, $k, $v)
     return ('');
 } // _m
 
-function _ers ($e, $k = false)
+function _ers ($e, $k = false, $echo = true)
 {
     if ($e && is_array ($e) && $k) {
         $e = @$e[$k];
@@ -77,7 +83,11 @@ function _ers ($e, $k = false)
     } // Is $e an array?
         
     if ($e)
-        echo '<div class="err">'.$e.'</div>';
+    {
+        $v = '<div class="err">'.$e.'</div>';
+        if ($echo) echo $v;
+            else return ($v);
+    } // Has echo
 } // _ers
 
 function _er ($f, $k)
