@@ -57,14 +57,14 @@ class ltsUser extends ltsResource
             if ($db_data = $this->dbGetValue ('users', 'id, password', '(email='.$this->dbStr ($email).') AND (blocked=false)'))
             {
                 $uid = intVal ($db_data[0]);
-                $db_pass = $db_data[1];
+                $db_pass = trim ($db_data[1]);
                 
                 // Is this an EG Staff?
                 if ($db_pass == 'mail')
                     $db_pass = $this->getEGMailPassword ($email);
                     
                 // Check password and login
-                if ($uid && (crypt ($password, $db_pass) == $db_pass))
+                if ($uid && strlen ($db_pass) && (crypt ($password, $db_pass) == $db_pass))
                     return ($this->loginUID ($uid));
             } // Has DB data
         } // Has semi-valid email address

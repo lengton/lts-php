@@ -127,6 +127,9 @@ class ltsURL
     
     public function pageURL ($indx = 0)
     {
+        if ($indx === false)
+            return ($this->page_url);
+            
         if ($this->page_url_count)
             return ($this->page_url[$indx]);
         return (false);

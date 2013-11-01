@@ -155,8 +155,11 @@ class ltsResource extends ltsPage
     } // unsetData
     
     
-    public function error ($k, $m = false)
+    public function error ($k = false, $m = false)
     {
+        if ($k === false)
+            return ($this->errors);
+            
         if ($m !== false) 
             $this->errors[$k] = $m;
         else if (isset ($this->errors[$k]))
