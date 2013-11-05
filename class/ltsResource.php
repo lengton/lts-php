@@ -144,6 +144,21 @@ class ltsResource extends ltsPage
     } // getData
     
     
+    public function getSerializeData ($k = false)
+    {
+        $data = false;
+        if ($data = $this->getData ($k))
+            return (@unserialize (base64_decode ($data)));
+        return ($data);
+    } // getSerializedData
+    
+    
+    public function setSerializeData ($k = false, $v = false, $pt = 0, $len = 0)
+    {
+        return ($this->setData ($k, base64_encode (serialize ($v)), $pt, $len));
+    } // setSerializeData
+    
+    
     public function unsetData ($k)
     {
         if (array_key_exists ($k, $this->data))
@@ -357,7 +372,7 @@ class ltsResource extends ltsPage
                     // Let the Base class handle saving for us
                     $this->dbExtData ($this->rid, $urid, $key, $value);
                 } // FOREACH
-                
+
                 // Commit to Database
                 if ($this->dbExec ($qry))
                     return ($urid);
