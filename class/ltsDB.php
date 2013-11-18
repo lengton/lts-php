@@ -4,6 +4,7 @@ class ltsDB extends ltsBase
 {
     private $db = false;
     private $last_insert_id = false;
+    private $db_type = false;  // 1 - MySQL, 0 - PostreSQL
     
     public function __construct ($pp = false)
     {
@@ -12,12 +13,24 @@ class ltsDB extends ltsBase
         
         if ($pp && is_array ($pp))
         {
-            $this->db = mysql_connect($pp['server'], $pp['user']);
-            if (!mysql_select_db ($pp['db'], $this->db))    
+            // WHICH DATABASE?
+            if (isset ($pp['pgsql']))
             {
-                $this->log ('ltsDB: Cannot connect to '.$pp['server'].':'.$pp['db']);
-                $this->db = false;
-            } // SELECT DATABASE 
+                if (($this->db = @pg_pconnect($pp['dbstr'])) === false)
+                {
+                    $this->log ('ltsDB(PgSQL): Cannot connect to system database ['.$pp['dbstr'].']');
+                    $this->db = false;
+                } // SELECT DATABASE
+            } else if (isset ($pp['mysql']))
+            {
+                $this->db_type = 1;
+                $this->db = mysql_connect($pp['server'], $pp['user']);
+                if (!mysql_select_db ($pp['db'], $this->db))    
+                {
+                    $this->log ('ltsDB(MySQL): Cannot connect to '.$pp['server'].':'.$pp['db']);
+                    $this->db = false;
+                } // SELECT DATABASE 
+            } // MYSQL DATABASE?
         } // PASSED AN ARRAY
     } // contructor
     
@@ -26,7 +39,7 @@ class ltsDB extends ltsBase
     {
         // IN MYSQL, dbAffectedRows RETURNS FALSE WHEN UPDATING A ROW WITH THE SAME VALUES
         // UPDATE SOMETHING e.g. TIMESTAMP TO HAVE dbAffectedRows RETURN TRUE FOR UPDATE
-//$this->log ('UPDATE '.$table.' SET '.$values.' WHERE '.$where);        
+        //$this->log ('UPDATE '.$table.' SET '.$values.' WHERE '.$where);
         if ($this->dbExec ('UPDATE '.$table.' SET '.$values.' WHERE '.$where) && (($ar = $this->dbAffectedRows ()) > 0))
             return ($ar);   
         return (false);
@@ -35,12 +48,33 @@ class ltsDB extends ltsBase
     
     public function dbExec ($qry, $store_id = false)
     {
-        if ($qry && $this->db && ($r = mysql_query ($qry, $this->db)))
+        if ($qry && $this->db)
         {
-            if ($store_id)
-                $this->last_insert_id = mysql_insert_id ($this->db);
-            return ($r);
-        } // Query OK?          
+            if ($db_type)
+            {
+                // MYSQL
+                if ($r = mysql_query ($qry, $this->db))
+                {
+                    if ($store_id)
+                        $this->last_insert_id = mysql_insert_id ($this->db);
+                    return ($r);
+                } // Query OK?
+            } else {
+                // PGSQL
+                if ($r = pg_query ($this->db, $qry))
+                {
+                    //$this->log ('** EXEC='.$qry);                
+                    //if (strpos ($qry, 'session') !== false)
+                    //    $this->log ('** '.$qry);      
+                    if ($store_id && ($sq = pg_query ($this->db, 'SELECT currval(\''.$store_id.'_id_seq\'::regclass)')))
+                    {
+                        $rw = $this->dbGetRow ($sq);
+                        $this->last_insert_id  = intVal ($rw[0]);
+                    } // RETRIEVE LAST INSERTED ID
+                    return ($r);
+                } // Has Return query?
+            } // Type of DB
+        } // Has Query and DB connection?
         return (false);
     } // dbExec
 
@@ -53,22 +87,44 @@ class ltsDB extends ltsBase
     
     public function dbNumRows ($r)
     {
-        return (mysql_num_rows ($r));
+        if ($this->db_type)
+        {
+            // MYSQL
+            return (mysql_num_rows ($r));
+        } return (pg_num_rows ($r));
     } // dbNumRows
     
     
-    public function dbAffectedRows ()
+    public function dbAffectedRows ($r = false)
     {
-        if ($this->db)
-            return (mysql_affected_rows ($this->db));
+        if ($this->db_type)
+        {
+            // MYSQL
+            if ($this->db)
+                return (mysql_affected_rows ($this->db));
+        } else {
+            // PGSQL
+            if ($this->db && $r)
+                return (pg_affected_rows ($r));
+        } // Type of DB
         return (false);
     } // dbAffectedRows
     
     
     public function dbGetRow ($r)
     {
-        return (mysql_fetch_row ($r));
+        if ($tihs->db_type)
+        {
+            // MYSQL
+            return (mysql_fetch_row ($r));
+        } else return (pg_fetch_row ($r));
     } // dbGetRow
+    
+    
+    public function dbGetRowAssoc ($r)
+    {
+        return (pg_fetch_assoc ($r));
+    } // dbGetRowAssoc
     
     
     public function dbInsert ($table, $value_set, $values)
@@ -93,9 +149,13 @@ class ltsDB extends ltsBase
     
     public function dbStr ($str)
     {
-        if (strlen ($str))
-            return ('\''.mysql_escape_string($str).'\'');
-        return ('NULL');
+        if ($this->db_type)
+        {
+            // MYSQL
+            if (strlen ($str))
+                return ('\''.mysql_escape_string($str).'\'');
+            return ('NULL');
+        } else return (parent::dbStr ($str));
     } // dbStr
     
     
