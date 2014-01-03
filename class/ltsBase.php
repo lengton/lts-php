@@ -208,7 +208,6 @@ class ltsBase
     
     public function dbUpdate ($table, $values, $where)
     {
-        //$this->log ('UPDATE '.$table.' SET '.$values.' WHERE '.$where);
         if (($r = $this->dbExec ('UPDATE '.$table.' SET '.$values.' WHERE '.$where)) && (($ar = $this->dbAffectedRows ($r)) > 0))
             return ($ar);   
         return (false);
@@ -219,8 +218,6 @@ class ltsBase
     {
         if ($qry && self::$db && ($r = pg_query (self::$db, $qry)))
         {
-//if (strpos ($qry, 'session') !== false)
-//    $this->log ('** '.$qry);        
             if ($current_table && ($sq = pg_query (self::$db, 'SELECT currval(\''.$current_table.'_id_seq\'::regclass)')))
             {
                 $rw = $this->dbGetRow ($sq);
@@ -286,7 +283,6 @@ class ltsBase
             $where = ' WHERE '.$where;
         else $where = '';
         
-//$this->log ('** '.'SELECT COUNT('.$count.') FROM '.$table.$where);        
         // Returns a wildcard count query
         if (($r = $this->dbExec ('SELECT COUNT('.$count.') FROM '.$table.$where)) && $this->dbNumRows ($r))
         {
@@ -440,7 +436,6 @@ class ltsBase
     
     public function dbGetValue ($table, $values, $where)
     {
-//$this->log ('SELECT '.$values.' FROM '.$table.' WHERE '.$where);    
         if (($r = $this->dbExec ('SELECT '.$values.' FROM '.$table.' WHERE '.$where)) && $this->dbNumRows ($r)) 
         {
             $rw = $this->dbGetRow ($r);

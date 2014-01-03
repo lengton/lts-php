@@ -1326,8 +1326,7 @@ class ltsPage extends ltsBase
         $db_script = $this->dbGetValue ('session', 'value', '(sid='.$this->dbStr (self::$backend_sid).') AND 
                                                              (name='.$this->dbStr ('lts_callback_script').') AND 
                                                              (value='.$this->dbStr ($script).')');
-        // Only allow from the Development server                                                             
-//        if (($db_script != $script) && $this->valueExists ('dev_server'));
+        // Only allow if 'callbacks_enable' is set                                                        
         if (($db_script != $script) && $this->valueExists ('callbacks_enable'))
         {
             $this->log ('ltsPage: Registering callback script ['.$fn.']');

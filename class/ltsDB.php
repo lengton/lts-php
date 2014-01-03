@@ -39,7 +39,6 @@ class ltsDB extends ltsBase
     {
         // IN MYSQL, dbAffectedRows RETURNS FALSE WHEN UPDATING A ROW WITH THE SAME VALUES
         // UPDATE SOMETHING e.g. TIMESTAMP TO HAVE dbAffectedRows RETURN TRUE FOR UPDATE
-        //$this->log ('UPDATE '.$table.' SET '.$values.' WHERE '.$where);
         if ($this->dbExec ('UPDATE '.$table.' SET '.$values.' WHERE '.$where) && (($ar = $this->dbAffectedRows ()) > 0))
             return ($ar);   
         return (false);
@@ -63,9 +62,6 @@ class ltsDB extends ltsBase
                 // PGSQL
                 if ($r = pg_query ($this->db, $qry))
                 {
-                    //$this->log ('** EXEC='.$qry);                
-                    //if (strpos ($qry, 'session') !== false)
-                    //    $this->log ('** '.$qry);      
                     if ($store_id && ($sq = pg_query ($this->db, 'SELECT currval(\''.$store_id.'_id_seq\'::regclass)')))
                     {
                         $rw = $this->dbGetRow ($sq);
@@ -163,7 +159,6 @@ class ltsDB extends ltsBase
     {
         if (($r = $this->dbExec ('SELECT '.$values.' FROM '.$table.' WHERE '.$where)) && $this->dbNumRows ($r)) 
         {
-//$this->log ('SELECT '.$values.' FROM '.$table.' WHERE '.$where);        
             $rw = $this->dbGetRow ($r);
             if (count($rw) > 1) return ($rw);
             return ($rw[0]);
