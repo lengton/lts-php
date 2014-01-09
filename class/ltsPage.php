@@ -1370,7 +1370,7 @@ class ltsPage extends ltsBase
             else $key = $this->sid;
         } // Do we have a key?
         $data = base64_decode ($str);
-        return (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC));
+        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
     } // unmangle
     
 } // ltsPage

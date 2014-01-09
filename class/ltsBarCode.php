@@ -72,7 +72,7 @@ class ltsBarCode extends ltsPage
         if ($h = intVal ($h))
         {
             if ($this->has_text)
-                if ($h < 35) $h = 35;
+                if ($h < 30) $h = 30;
             else if ($h < 5) $h = 5;
             if ($h > 100) $h = 80;
             self::$bar_height = $h;
