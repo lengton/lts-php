@@ -1350,7 +1350,12 @@ class ltsPage extends ltsBase
     public function mangle ($str, $key = false)
     {
         if ($key === false)
-            $key = $this->sid;
+        {
+            // ALWAYS GET THIS FROM COOKIES
+            if (isset ($_COOKIE['lts_sid']))
+                $key = $_COOKIE['lts_sid'];
+            else $key = $this->sid;
+        } // Do we have a key?
         return (base64_encode (mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $key, trim ($str), MCRYPT_MODE_CBC)));
     } // mangle
     
@@ -1358,9 +1363,14 @@ class ltsPage extends ltsBase
     public function unmangle ($str, $key = false)
     {
         if ($key === false)
-            $key = $this->sid;
+        {
+            // ALWAYS GET THIS FROM COOKIES
+            if (isset ($_COOKIE['lts_sid']))
+                $key = $_COOKIE['lts_sid'];
+            else $key = $this->sid;
+        } // Do we have a key?
         $data = base64_decode ($str);
-        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
+        return (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC));
     } // unmangle
     
 } // ltsPage
