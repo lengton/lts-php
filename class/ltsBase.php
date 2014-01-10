@@ -58,7 +58,7 @@ class ltsBase
                 
             // Open log file
             if (!self::$log_fd)
-                self::$log_fd = fopen (self::$log_path, 'a');
+                self::$log_fd = @fopen (self::$log_path, 'a');
         } // LOG PATH EXISTS?
         
         // We just need one copy of the Database connection
