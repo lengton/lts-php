@@ -393,7 +393,15 @@ class ltsBase
         if (!$this->dbUpdate ('session', 'ts=NOW(), value='.$this->dbStr($value), $whr))
             return ($this->sessionInsert ($key, $value, self::$backend_sid));
         return (false);
-    } // sessionReplace    
+    } // sessionBackendReplace
+    
+    
+    public function sessionBackendErase ($key, $where = false, $opr = '=')
+    {
+        $whr = '(name '.$opr.' '.$this->dbStr ($key).') AND (sid='.$this->dbStr(self::$backend_sid).')';
+        if ($where) $whr .= ' AND ('.$where.')';
+        return ($this->dbDelete ('session', $whr));
+    } // sessionBackendErase
     
     
     public function sessionErase ($key, $where = false, $opr = '=')
