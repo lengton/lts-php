@@ -109,7 +109,7 @@ class ltsDB extends ltsBase
     
     public function dbGetRow ($r)
     {
-        if ($tihs->db_type)
+        if ($this->db_type)
         {
             // MYSQL
             return (mysql_fetch_row ($r));
