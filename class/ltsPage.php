@@ -1356,7 +1356,7 @@ class ltsPage extends ltsBase
                 $key = $_COOKIE['lts_sid'];
             else $key = $this->sid;
         } // Do we have a key?
-        return (base64_encode (mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $key, trim ($str), MCRYPT_MODE_CBC)));
+        return (base64_encode (@mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $key, trim ($str), MCRYPT_MODE_CBC)));
     } // mangle
     
     
@@ -1370,7 +1370,7 @@ class ltsPage extends ltsBase
             else $key = $this->sid;
         } // Do we have a key?
         $data = base64_decode ($str);
-        return (trim (mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
+        return (trim (@mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
     } // unmangle
     
 } // ltsPage
