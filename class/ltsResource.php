@@ -535,10 +535,7 @@ class ltsResource extends ltsPage
             
             // Now merge External data for this resource
             if ($ext_data = $this->dbGetExtData ($this->rid, $urid))
-            {
-                $merged_data = array_merge ($ext_data, $this->data);
-                $this->data = $merged_data;
-            } // Do we have external data?
+                $this->data = array_merge ((array) $this->data, (array) $ext_data);
             return ($urid);
         } // Are we able to process?
         return (false);
