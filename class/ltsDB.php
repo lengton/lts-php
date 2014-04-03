@@ -49,7 +49,7 @@ class ltsDB extends ltsBase
     {
         if ($qry && $this->db)
         {
-            if ($db_type)
+            if ($this->db_type)
             {
                 // MYSQL
                 if ($r = mysql_query ($qry, $this->db))
