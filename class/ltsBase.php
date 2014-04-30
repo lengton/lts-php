@@ -228,6 +228,18 @@ class ltsBase
         } // Query OK?          
         return (false);
     } // dbExec
+    
+    
+    public function dbPutLine ($s = false)
+    {
+        return (pg_put_line (self::$db, $s));
+    } // dbPutLine
+    
+    
+    public function dbPutLineEnd ()
+    {
+        return (pg_end_copy (self::$db));
+    } // dbPutLineEnd
 
     
     public function dbLastID ()
