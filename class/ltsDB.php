@@ -39,7 +39,7 @@ class ltsDB extends ltsBase
     {
         // IN MYSQL, dbAffectedRows RETURNS FALSE WHEN UPDATING A ROW WITH THE SAME VALUES
         // UPDATE SOMETHING e.g. TIMESTAMP TO HAVE dbAffectedRows RETURN TRUE FOR UPDATE
-        if ($this->dbExec ('UPDATE '.$table.' SET '.$values.' WHERE '.$where) && (($ar = $this->dbAffectedRows ()) > 0))
+        if (($r = $this->dbExec ('UPDATE '.$table.' SET '.$values.' WHERE '.$where)) && (($ar = $this->dbAffectedRows ($r)) > 0))
             return ($ar);   
         return (false);
     } // dbUpdate
@@ -129,7 +129,7 @@ class ltsDB extends ltsBase
         if ($value_set && strlen ($value_set))
             $q .= ' ('.$value_set.') ';
         $q .= 'VALUES ('.$values.')';
-        if (($r = $this->dbExec ($q)) && ($ar = $this->dbAffectedRows ()))
+        if (($r = $this->dbExec ($q)) && ($ar = $this->dbAffectedRows ($r)))
             return ($ar);
         return (false);
     } // dbInsert
@@ -137,7 +137,7 @@ class ltsDB extends ltsBase
     
     public function dbDelete ($table, $where)
     {
-        if (($r = $this->dbExec ('DELETE FROM '.$table.' WHERE '.$where)) && ($ar = $this->dbAffectedRows ()))
+        if (($r = $this->dbExec ('DELETE FROM '.$table.' WHERE '.$where)) && ($ar = $this->dbAffectedRows ($r)))
             return ($ar);
         return (false);
     } // dbDelete
