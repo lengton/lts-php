@@ -100,7 +100,7 @@ class ltsBase
             } // SET SESSION KEY
                     
             // CHECK FOR STALE TEMPORARY FILES
-            $q = 'SELECT value FROM session WHERE (AGE(ts) > INTERVAL \'24 hours\') AND (name LIKE \'lts_tempFile\')';
+            $q = 'SELECT value FROM session WHERE (AGE(ts) > INTERVAL \'24 hours\') AND (name LIKE \'lts_tempFile%\')';
             if (($r = $this->dbExec ($q)) && $this->dbNumRows ($r))
             {
                 while ($rw = $this->dbGetRow ($r))
