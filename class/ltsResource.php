@@ -135,6 +135,9 @@ class ltsResource extends ltsPage
                     // Returns Integer value
                     case 4 : 
                         return (intVal ($v));
+                    // Returns Float value
+                    case 5 : 
+                        return (floatVal ($v));
                     default:
                         return ($v);
                 } // RETURN TYPE
