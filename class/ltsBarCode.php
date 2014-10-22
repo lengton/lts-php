@@ -203,9 +203,11 @@ class ltsBarCode extends ltsPage
                 imagegif ($this->image);
                 imagedestroy($this->image);
                 $this->image = false;
-                return (true);
+                $true = true;
+                return ($true);
             } else {
-                return ($this->image);
+                $img = $this->image;
+                return ($img);
             } // Output the Image
         } // HAS STRING
         return (false);

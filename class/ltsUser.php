@@ -59,10 +59,6 @@ class ltsUser extends ltsResource
                 $uid = intVal ($db_data[0]);
                 $db_pass = trim ($db_data[1]);
                 
-                // Is this an EG Staff?
-                if ($db_pass == 'mail')
-                    $db_pass = $this->getEGMailPassword ($email);
-                    
                 // Check password and login
                 if ($uid && strlen ($db_pass) && (crypt ($password, $db_pass) == $db_pass))
                     return ($this->loginUID ($uid));
@@ -80,9 +76,6 @@ class ltsUser extends ltsResource
         {
             if ($pass = $this->dbGetValue ('users', 'password', 'id='.$uid))
             {
-                if ($pass == 'mail')
-                    return (1);
-
                 if (crypt ($password, $pass) == $pass)
                     return (true);
             } // Has Password value
@@ -126,27 +119,6 @@ class ltsUser extends ltsResource
             return ($this->dbGetValue ('users', 'email', 'email='.$this->dbStr($email)) ? true : false);
         return (false);
     } // emailCheck
-    
-    
-    public function getEGMailPassword ($email = false)
-    {
-        $db_pass = false;
-        $email = trim ($email);
-        if ($email && strlen ($email))
-        {
-            // Connect to EG Mailserver DB
-            if ($db = mysql_connect('mail.eurekagenomics.com', 'web', 'webby.pass'))
-            {
-                if (mysql_select_db ('postfix', $db)) 
-                {
-                    if (($r = mysql_query ('SELECT password FROM mailbox WHERE (username='.$this->dbStr ($email).') AND (active=1) LIMIT 1', $db)) &&
-                        ($rw = mysql_fetch_row ($r)))
-                        $db_pass = $rw[0];
-                } // Connected to Postfix
-            } // Get DB connection
-        } // has email string
-        return ($db_pass);
-    } // getEGMailPassword
     
     
     public function loginUID ($uid = false)
