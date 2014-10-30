@@ -16,7 +16,21 @@ class ltsDB extends ltsBase
             // WHICH DATABASE?
             if (isset ($pp['pgsql']))
             {
-                if (($this->db = @pg_pconnect($pp['dbstr'])) === false)
+                // CHECK FOR 'dbstr'
+                $dbstr = false;
+                if (isset ($pp['dbstr']))
+                    $dbstr = $pp['dbstr'];
+                else {
+                    $dbstr = '';
+                    foreach ($pp as $key => $val)
+                    {
+                        if ($key == 'pgsql') continue;
+                        $dbstr .= $key.'='.$val.' ';
+                    } // FOREACH
+                    $dbstr = trim ($dbstr);
+                } // Has DB string?
+                
+                if ($dbstr && (($this->db = @pg_pconnect($dbstr)) === false))
                 {
                     $this->log ('ltsDB(PgSQL): Cannot connect to system database ['.$pp['dbstr'].']');
                     $this->db = false;
