@@ -38,7 +38,7 @@ class ltsBase
     public function __construct($for_web = true)
     {
         // Set timezone
-        date_default_timezone_set ('US/Central');
+        date_default_timezone_set ('US/Pacific');
         
         // Compute header size
         $this->shmem_compute_header_size();
@@ -216,9 +216,9 @@ class ltsBase
     
     public function dbExec ($qry, $current_table = false)
     {
-        if ($qry && self::$db && ($r = pg_query (self::$db, $qry)))
+        if ($qry && self::$db && ($r = @pg_query (self::$db, $qry)))
         {
-            if ($current_table && ($sq = pg_query (self::$db, 'SELECT currval(\''.$current_table.'_id_seq\'::regclass)')))
+            if ($current_table && ($sq = @pg_query (self::$db, 'SELECT currval(\''.$current_table.'_id_seq\'::regclass)')))
             {
                 $rw = $this->dbGetRow ($sq);
                 $this->last_insert_id  = intVal ($rw[0]);

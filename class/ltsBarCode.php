@@ -90,7 +90,8 @@ class ltsBarCode extends ltsPage
     public function &intcode ($v, $image_out = true)
     {
         $s = sprintf ("%011d", $v);
-        return ($this->barcode ($s, $image_out));
+        $bh = $this->barcode ($s, $image_out);
+        return ($bh);
     } // intcode
     
     
