@@ -1355,8 +1355,15 @@ class ltsPage extends ltsBase
             if (isset ($_COOKIE['lts_sid']))
                 $key = $_COOKIE['lts_sid'];
             else $key = $this->sid;
+        } else {
+            // CONVERT STRING TO BYTES -- WE ASSUME VANILLA STRINGS
+            $pkey = '';
+            foreach (str_split ($key) as $c)
+                $pkey .= dechex (ord ($c));
+            $key = sprintf ("%-32s", $pkey);
         } // Do we have a key?
-        return (base64_encode (@mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $key, trim ($str), MCRYPT_MODE_CBC)));
+        $bkey = pack ('H32', $key);
+        return (base64_encode (@mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $bkey, trim ($str), MCRYPT_MODE_CBC)));
     } // mangle
     
     
@@ -1368,9 +1375,16 @@ class ltsPage extends ltsBase
             if (isset ($_COOKIE['lts_sid']))
                 $key = $_COOKIE['lts_sid'];
             else $key = $this->sid;
+        } else {
+            // CONVERT STRING TO BYTES -- WE ASSUME VANILLA STRINGS
+            $pkey = '';
+            foreach (str_split ($key) as $c)
+                $pkey .= dechex (ord ($c));
+            $key = sprintf ("%-32s", $pkey);
         } // Do we have a key?
+        $bkey = pack ('H32', $key);
         $data = base64_decode ($str);
-        return (trim (@mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_MODE_CBC)));
+        return (trim (@mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $bkey, $data, MCRYPT_MODE_CBC)));
     } // unmangle
     
 } // ltsPage
