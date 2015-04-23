@@ -1360,10 +1360,10 @@ class ltsPage extends ltsBase
             $pkey = '';
             foreach (str_split ($key) as $c)
                 $pkey .= dechex (ord ($c));
-            $key = sprintf ("%-32s", $pkey);
+            $key = sprintf ("%-'032s", $pkey);
         } // Do we have a key?
         $bkey = pack ('H32', $key);
-        return (base64_encode (@mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $bkey, trim ($str), MCRYPT_MODE_CBC)));
+        return (base64_encode (@mcrypt_encrypt (MCRYPT_RIJNDAEL_128, $bkey, trim ($str), MCRYPT_MODE_CBC, $bkey)));
     } // mangle
     
     
@@ -1380,11 +1380,11 @@ class ltsPage extends ltsBase
             $pkey = '';
             foreach (str_split ($key) as $c)
                 $pkey .= dechex (ord ($c));
-            $key = sprintf ("%-32s", $pkey);
+            $key = sprintf ("%-'032s", $pkey);
         } // Do we have a key?
         $bkey = pack ('H32', $key);
         $data = base64_decode ($str);
-        return (trim (@mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $bkey, $data, MCRYPT_MODE_CBC)));
+        return (trim (@mcrypt_decrypt (MCRYPT_RIJNDAEL_128, $bkey, $data, MCRYPT_MODE_CBC, $bkey)));
     } // unmangle
     
 } // ltsPage
