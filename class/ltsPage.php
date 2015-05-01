@@ -1347,7 +1347,7 @@ class ltsPage extends ltsBase
     } // unregisterTimeout
     
     
-    public function mangle ($str, $key = false)
+    public function mangle ($str, $key = false, $hex_key = false)
     {
         if ($key === false)
         {
@@ -1355,7 +1355,7 @@ class ltsPage extends ltsBase
             if (isset ($_COOKIE['lts_sid']))
                 $key = $_COOKIE['lts_sid'];
             else $key = $this->sid;
-        } else {
+        } else if ($hex_key == false) {
             // CONVERT STRING TO BYTES -- WE ASSUME VANILLA STRINGS
             $pkey = '';
             foreach (str_split ($key) as $c)
@@ -1367,7 +1367,7 @@ class ltsPage extends ltsBase
     } // mangle
     
     
-    public function unmangle ($str, $key = false)
+    public function unmangle ($str, $key = false, $hex_key = false)
     {
         if ($key === false)
         {
@@ -1375,7 +1375,7 @@ class ltsPage extends ltsBase
             if (isset ($_COOKIE['lts_sid']))
                 $key = $_COOKIE['lts_sid'];
             else $key = $this->sid;
-        } else {
+        } else if ($hex_key == false) {
             // CONVERT STRING TO BYTES -- WE ASSUME VANILLA STRINGS
             $pkey = '';
             foreach (str_split ($key) as $c)
