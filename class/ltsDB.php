@@ -137,6 +137,20 @@ class ltsDB extends ltsBase
     } // dbGetRowAssoc
     
     
+    public function dbPutLine ($s = false)
+    {
+        if ($this->db_type)
+            return (false);
+        else return (pg_put_line ($this->db, $s));
+    } // dbPutLine
+    
+    public function dbPutLineEnd ()
+    {
+        if ($this->db_type)
+            return (false);
+        else return (pg_end_copy ($this->db));
+    } // dbPutLineEnd
+    
     public function dbInsert ($table, $value_set, $values)
     {
         $q = 'INSERT INTO '.$table;
@@ -179,6 +193,12 @@ class ltsDB extends ltsBase
         } // HAS DB VALUE
         return (false);
     } // dbGetValue
+    
+    
+    public function dbGetResource ()
+    {
+        return ($this->db);
+    } // dbGetResource
     
 } // ltsDB
 ?>
