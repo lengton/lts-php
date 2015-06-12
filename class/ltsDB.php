@@ -200,13 +200,5 @@ class ltsDB extends ltsBase
         return ($this->db);
     } // dbGetResource
     
-    
-    public function flush ()
-    {
-        if ($this->db_type)
-            return (true);
-        else return (pg_flush ($this->db));
-    } // flush
-    
 } // ltsDB
 ?>
